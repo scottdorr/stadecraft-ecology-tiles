@@ -24,9 +24,9 @@ jobs:
       - name: Prepare workspace
         run: mkdir -p data tiles
 
-      - name: Download GeoJSON (TEOW stand-in)
+      - name: Download GeoJSON (WWF TEOW from ArcGIS)
         run: |
-          curl -L -o data/ecoregions.geojson https://raw.githubusercontent.com/teow-data/teow/master/teow.geojson
+          curl -L -o data/ecoregions.geojson "https://services5.arcgis.com/0AFsQflykfA9lXZn/arcgis/rest/services/WWF_Terrestrial_Ecoregions_Of_The_World_official_teow/FeatureServer/0/query?where=1=1&outFields=*&f=geojson"
           test -s data/ecoregions.geojson
 
       - name: Build MBTiles
