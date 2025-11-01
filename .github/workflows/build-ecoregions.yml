@@ -1,28 +1,41 @@
-  - name: Prepare workspace
-    run: mkdir -p data tiles
+name: Build and publish ecoregions.pmtiles
+on:
+  push:
+    branches:
+      - main
+permissions:
+  contents: write
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
 
-  - name: Download GeoJSON (TEOW stand-in)
-    run: |
-      curl -L -o data/ecoregions.geojson https://raw.githubusercontent.com/teow-data/teow/master/teow.geojson
-      test -s data/ecoregions.geojson
+      - name: Prepare workspace
+        run: mkdir -p data tiles
 
-  - name: Build MBTiles with tippecanoe (Docker)
-    run: |
-      docker run --rm -v "$PWD":/work -w /work maptiler/tippecanoe \
-        tippecanoe -o data/ecoregions.mbtiles -l ecoregions -zg --drop-densest-as-needed --extend-zooms-if-still-dropping data/ecoregions.geojson
+      - name: Download GeoJSON (TEOW stand-in)
+        run: |
+          curl -L -o data/ecoregions.geojson https://raw.githubusercontent.com/teow-data/teow/master/teow.geojson
+          test -s data/ecoregions.geojson
 
-  - name: Convert to PMTiles
-    run: |
-      docker run --rm -v "$PWD/data":/work ghcr.io/protomaps/go-pmtiles:latest \
-        pmtiles convert /work/ecoregions.mbtiles /work/ecoregions.pmtiles
+      - name: Build MBTiles with tippecanoe (Docker)
+        run: |
+          docker run --rm -v "$PWD":/work -w /work maptiler/tippecanoe \
+            tippecanoe -o data/ecoregions.mbtiles -l ecoregions -zg --drop-densest-as-needed --extend-zooms-if-still-dropping data/ecoregions.geojson
 
-  - name: Move into tiles/
-    run: mv data/ecoregions.pmtiles tiles/ecoregions.pmtiles
+      - name: Convert to PMTiles
+        run: |
+          docker run --rm -v "$PWD/data":/work ghcr.io/protomaps/go-pmtiles:latest \
+            pmtiles convert /work/ecoregions.mbtiles /work/ecoregions.pmtiles
 
-  - name: Commit and push tiles
-    run: |
-      git config user.name "github-actions"
-      git config user.email "github-actions@github.com"
-      git add tiles/ecoregions.pmtiles
-      git commit -m "Add ecoregions.pmtiles (built by CI)" || echo "No changes"
-      git push
+      - name: Move into tiles/
+        run: mv data/ecoregions.pmtiles tiles/ecoregions.pmtiles
+
+      - name: Commit and push tiles
+        run: |
+          git config user.name "github-actions"
+          git config user.email "github-actions@github.com"
+          git add tiles/ecoregions.pmtiles
+          git commit -m "Add ecoregions.pmtiles (built by CI)" || echo "No changes"
+          git push
