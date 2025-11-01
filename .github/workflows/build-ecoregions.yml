@@ -21,7 +21,7 @@ jobs:
 
       - name: Build MBTiles with tippecanoe (Docker)
         run: |
-          docker run --rm -v "$PWD":/work -w /work maptiler/tippecanoe \
+          docker run --rm -v "$PWD":/work -w /work developmentseed/tippecanoe \
             tippecanoe -o data/ecoregions.mbtiles -l ecoregions -zg --drop-densest-as-needed --extend-zooms-if-still-dropping data/ecoregions.geojson
 
       - name: Convert to PMTiles
